@@ -1,10 +1,9 @@
 import ftplib
 import pandas
-import io
-from datetime import date
-import os
+import os as os
 from datetime import date
 import pandas
+
 class Message() :
     def __init__(self, update):
         self.url_stock = 'ftp.nasdaqtrader.com/SymbolDirectory/nasdaqlisted.txt'
@@ -18,6 +17,7 @@ class Message() :
         self.filename = [f"{url.split('/')[-1].split('.')[0]}.txt" for url in self.url_list]
         self.firsttime = True
         self.update = update
+        self.Average_volumn_threshold = 500000
 
     def _check_status_firsttime(self):
         count_file = 0
@@ -63,7 +63,7 @@ class Message() :
             return 1, data
         except Exception as e :
             print(f"[ERROR] Company_list :: getdata :: {e}")
-            return -1, -1
+            return -1, str(e)
 
     def compare_list(self, filepath, newData, name_oldData, index_comparecolumn):
         try :
@@ -75,7 +75,7 @@ class Message() :
                 self.symbol_diff[name_oldData] = symbol_diff
             else :
                 return symbol_diff
-            print("Company_list :: Data comparing......")
+            #print("Company_list :: Data comparing......")
         except Exception as e :
             print(f"[ERROR] Company_list :: _compare_list :: {e}")
 
@@ -106,6 +106,19 @@ class Message() :
             dict[key].to_csv(self.filepath + "Adjust" + file_name + ".csv" , index=False, header = False)
         print("Company_list :: Adjust list updated")
 
+    def update_all_list(self):
+        filepath = "E:\\stock\\data\\"
+        file_subpath = ['etf\\', 'stock\\']
+        result = {'otherlisted' : [], 'nasdaqlisted' : []}
+        for sub_path in file_subpath :
+            path = 'otherlisted' if sub_path == 'etf\\' else 'nasdaqlisted'
+            for file_name in os.listdir(filepath+sub_path) :
+                if os.path.isfile(os.path.join(filepath + sub_path, file_name)) :
+                    return_code, valumn_list = self.getdata(filepath + sub_path, file_name, 'Volume')
+                    if sum(valumn_list[-100:])/100 > self.Average_volumn_threshold :
+                        result[path].append(file_name.split('.')[0])
+        self.update_list(result)
+
     def start_processing(self):
         #-----------------------Download date from web----------------------------
         if self.update :
@@ -131,7 +144,7 @@ class Message() :
             if os.path.isfile(self.filepath + "Adjust" + filename) :
                 return_dict[filename.split('.')[0]] = pandas.read_csv(self.filepath + "Adjust" + filename, header=None)
         if len(return_dict.keys()) == 2 :
-            print(f"Company_list :: Loadilng Adjust symbol list ")
+            #print(f"Company_list :: Loadilng Adjust symbol list ")
             for key in return_dict :
                 return_dict[key] = [','.join(x) for x in return_dict[key].values.tolist()]
                 #print(return_dict[key])
@@ -142,6 +155,7 @@ class Message() :
 
 def main() :
     msg =  Message(True)
-    msg.start_processing()
+    msg.update_all_list()
+    #msg.start_processing()
 if __name__ == "__main__" :
     main()

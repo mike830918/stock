@@ -1,0 +1,8 @@
+CREATE TABLE if not EXISTS Symbol_list_NASDAQ (
+	NASDAQ VARCHAR(10),
+	UNIQUE (NASDAQ)
+);
+CREATE TABLE if not EXISTS Symbol_list_ETF (
+	ETF    VARCHAR(10),
+	UNIQUE (ETF)
+);

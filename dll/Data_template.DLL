@@ -1,0 +1,10 @@
+CREATE TABLE if not EXISTS TABLE_NAME (
+	Date_ 		DATE,
+	Open_ 		FLOAT4,
+	High		FLOAT4,
+	Low			FLOAT4,
+	Close_		FLOAT4,
+	Adj_close   FLOAT4,
+	Volume		INT4,
+	UNIQUE(Date_)
+);
