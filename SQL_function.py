@@ -380,8 +380,9 @@ def main():
     Database = database("65.19.141.67", "mike8309_stock", 'offline')
     Database.connect()
     # ----------------------------- Daily update -----------------------------
-    #Database.start_processing('online')
+    Database.start_processing('online')
     # -----------------------------
+    '''
     status, msg, symbol_list = Database.get_symbol_list()
     if status == 1 :
         for key in symbol_list :
@@ -391,7 +392,7 @@ def main():
                 print(result)
     else :
         logging.error(msg)
-
+    '''
 if __name__ == "__main__" :
     main()
 
